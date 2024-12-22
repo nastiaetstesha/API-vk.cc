@@ -4,7 +4,25 @@ from dotenv import load_dotenv
 
 
 def is_shorten_link(url):
-    return url.startswith("https://vk.cc/") or url.startswith("vk.cc/")
+    if url.startswith("https://vk.cc/") or url.startswith("vk.cc/"):
+        short_url_key = url.split("vk.cc/")[1]
+        
+        api_url = "https://api.vk.com/method/utils.getLinkStats"
+        
+        params = {
+            'key': short_url_key,  # Сокращенная ссылка
+            'interval': 'forever',  # За всё время
+            'intervals_count': 1,  # Один период
+            'extended': 0,  # Без расширенной статистики
+            'v': '5.199',  # Версия API
+            'access_token': token  # Токен доступа
+        }
+        
+        link_info = handle_request(api_url, params)
+        
+        if link_info and 'response' in link_info and link_info['response']:
+            return True
+    return False
 
 def shorten_link(token, url, private=0):
     api_url = "https://api.vk.com/method/utils.getShortLink"
@@ -42,7 +60,7 @@ def count_clicks(token, original_url, access_key=None, interval='forever', inter
         total_views = sum(stat['views'] for stat in stats)
         return total_views
     return None
-    
+
 def handle_request(api_url, params):
     try:
         response = requests.get(api_url, params=params)
@@ -67,7 +85,7 @@ if __name__ == '__main__':
     load_dotenv()
 
     original_url = input("Введите ссылку для сокращения: ")
-    token = os.environ['TOKEN']
+    token = os.environ['VK_TOKEN']
     
     if is_shorten_link(original_url):
         total_views = count_clicks(token, original_url, interval='forever', intervals_count=1, extended=0)
