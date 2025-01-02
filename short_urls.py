@@ -1,5 +1,6 @@
 import requests
 import os
+import argparse
 from dotenv import load_dotenv
 from urllib.parse import urlparse
 
@@ -25,7 +26,9 @@ def is_shorten_link(url):
         link_info = response.json()
 
         if 'error' in link_info:
-            error_message = link_info['error'].get('error_msg', 'Неизвестная ошибка')
+            error_message = link_info['error'].get(
+                'error_msg', 'Неизвестная ошибка'
+                )
             raise Exception(error_message)
 
         return bool(link_info.get('response'))
@@ -46,7 +49,9 @@ def shorten_link(token, url, private=0):
     link_info = response.json()
 
     if 'error' in link_info:
-        error_message = link_info['error'].get('error_msg', 'Неизвестная ошибка')
+        error_message = link_info['error'].get(
+            'error_msg', 'Неизвестная ошибка'
+            )
         raise Exception(error_message)
     if link_info:
         return link_info['response']['short_url']
@@ -95,9 +100,29 @@ def count_clicks(
 if __name__ == '__main__':
     load_dotenv()
 
-    original_url = input("Введите ссылку для сокращения: ")
-    token = os.environ['VK_TOKEN']
+    # original_url = input("Введите ссылку для сокращения: ")
+
+    # token = os.environ['VK_TOKEN']
+    parser = argparse.ArgumentParser(
+        description="Сокращение ссылок и получение статистики по ним."
+        )
+    parser.add_argument(
+        'url',
+        type=str,
+        help="Введите ссылку для сокращения или проверки."
+        )
+    parser.add_argument(
+        '--token',
+        type=str,
+        default=os.environ.get('VK_TOKEN'),
+        help="Токен для доступа к VK API."
+        )
+
+    args = parser.parse_args()
+
     try:
+        original_url = args.url
+        token = args.token
         if is_shorten_link(original_url):
             total_views = count_clicks(
                 token, original_url,
