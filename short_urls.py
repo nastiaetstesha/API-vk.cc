@@ -100,9 +100,7 @@ def count_clicks(
 if __name__ == '__main__':
     load_dotenv()
 
-    # original_url = input("Введите ссылку для сокращения: ")
-
-    # token = os.environ['VK_TOKEN']
+    token = os.environ['VK_TOKEN']
     parser = argparse.ArgumentParser(
         description="Сокращение ссылок и получение статистики по ним."
         )
@@ -111,18 +109,10 @@ if __name__ == '__main__':
         type=str,
         help="Введите ссылку для сокращения или проверки."
         )
-    parser.add_argument(
-        '--token',
-        type=str,
-        default=os.environ.get('VK_TOKEN'),
-        help="Токен для доступа к VK API."
-        )
-
     args = parser.parse_args()
 
     try:
         original_url = args.url
-        token = args.token
         if is_shorten_link(original_url):
             total_views = count_clicks(
                 token, original_url,
